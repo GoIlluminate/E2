@@ -1,5 +1,4 @@
 const config = require('./../webpack.config.js')
-import path = require("path")
 import webpack = require('webpack')
 import webpackMiddleware = require('webpack-dev-middleware')
 import webpackHotMiddleware = require('webpack-hot-middleware')

@@ -1,11 +1,13 @@
 import path = require('path')
 import express = require('express')
-import config = require("./config/config")
-const app = require("./config/express")()
+const app = express()
 const isDevelopment = process.env.NODE_ENV !== 'production'
-const port = isDevelopment ?  config.port : process.env.PORT
+const port = isDevelopment ? 3000 : process.env.PORT
 
+// API endpoints
 const routes = require('./routes')
+
+app.set('json spaces', 2)
 app.get('/color', routes.color)
 
 // Serving compiled elm client
