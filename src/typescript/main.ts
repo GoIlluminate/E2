@@ -1,5 +1,5 @@
-const path = require('path')
-const express = require('express')
+import path = require('path')
+import express = require('express')
 const app = express()
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const port = isDevelopment ? 3000 : process.env.PORT
