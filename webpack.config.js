@@ -39,7 +39,7 @@ const common = {
   ]
 }
 
-if (TARGET === 'start') {
+if (TARGET === 'start:webpack') {
   module.exports = merge(common, {
     devtool: 'eval-source-map',
 
