@@ -4,12 +4,11 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Html.App as Html
-import Task exposing (Task)
+import Html as Html
 import Json.Decode exposing (Decoder)
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.program
         { view = view
@@ -21,9 +20,15 @@ main =
 
 fetchColor : Cmd Msg
 fetchColor =
-    Http.get Json.Decode.string "http://localhost:3000/color"
-        |> Task.perform HandleColorError HandleNewColor
+    Http.send
+        processColor
+        <| Http.get "http://localhost:3000/color" Json.Decode.string
 
+processColor : Result Http.Error String -> Msg
+processColor result =
+    case result of
+        Ok newColor -> HandleNewColor newColor
+        Err err -> HandleColorError err
 
 
 -- MODEL
