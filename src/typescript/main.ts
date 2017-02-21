@@ -1,27 +1,11 @@
-import path = require('path')
-import express = require('express')
-import config = require("./config/config")
-const app = require("./config/express")()
-const isDevelopment = process.env.NODE_ENV !== 'production'
-const port = isDevelopment ?  config.port : process.env.PORT
+import { Config } from "./config/config"
+import { ExpressApp } from "./config/express"
 
-const routes = require('./routes')
-app.get('/color', routes.color)
-
-// Serving compiled elm client
-if (isDevelopment) {
-  require('./webpackServeBundle')(app)
-} else {
-  app.use(express.static(path.join(__dirname, '/../dist')))
-  app.get('*', (req, res) =>
-    res.sendFile(path.join(__dirname, '/../dist/index.html'))
-  )
-}
+const conf = Config.fromEnv();
+const app = new ExpressApp(conf);
+console.log ("CONFIG: " + JSON.stringify(conf));
 
 // Starting express
 if (!module.parent) {
-  app.listen(port, err => {
-    if (err) console.log(err)
-    console.log(`⚡  Express started on port ${port}`)
-  })
+  app.startApp();
 }

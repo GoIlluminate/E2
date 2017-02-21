@@ -1,10 +1,14 @@
-exports.color = (req, res) => {
-  const elmColors = [
-    '#5A6379',
-    '#5CB5CD',
-    '#F2AE00',
-    '#7CD32B'
-  ]
-  const random = Math.floor(Math.random() * elmColors.length)
-  return res.json(elmColors[random])
+import { ColorRoute } from "./routes/color"
+import { Router } from "express";
+
+export class Routes {
+  readonly router: Router;
+  constructor(router: Router) {
+    this.router = router;
+  }
+
+  public registerRoutes() {
+    // I don't see any clean way to do this using OOP
+    ColorRoute.registerRoutes(this.router);
+  }
 }

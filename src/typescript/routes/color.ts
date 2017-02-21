@@ -1,18 +1,16 @@
-"use strict"
-import express = require("express");
-const color = require("../controllers/color");
+import * as express from "express"
+import { ColorController } from "../controllers/color"
 
-class ColorRoute {
-  constructor(app : express.Express) {
-    var self = ColorRoute;
-    self.generateRoutes(app);
+export class ColorRoute {
+  private constructor() {
   }
 
-  public static generateRoutes(app : express.Express) : void {
-    app.get("/color", color.getColor);
+  public static registerRoutes(router : express.Router) {
+    router.get('/color', this.getColor);
   }
-  
+
+  public static getColor(req: express.Request, res: express.Response) {
+    const color = ColorController.getColor();
+    return res.json(color)
+  }
 }
-
-module.exports = ColorRoute;
-

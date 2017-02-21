@@ -1,17 +1,16 @@
-"use strict"
-import glob = require("glob")
-import _ = require("lodash")
+export class Config {
+  public readonly port: number;
+  public readonly isDevelopment: boolean;
 
-class Config {
-    public static port: number = 3000
-    public static routes = "routes/**/*.js"
+  public constructor(port: number, isDevelopment: boolean) {
+    this.port = port;
+    this.isDevelopment = isDevelopment;
+  }
 
-    public static globFiles(location: string) : Array<string> {
-        var files = glob.sync(location)
-        var output: Array<string> = []
-        output = _.union(output, files)
-        return output
-    }
+  public static fromEnv(): Config {
+    const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
+    const port: number = isDevelopment ?  3000 : process.env.ILLUMINATE_RADPATH_PORT
+
+    return new Config(port, isDevelopment);
+  }
 }
-
-export = Config
