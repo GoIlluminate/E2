@@ -1,14 +1,15 @@
 import { ColorRoute } from "./routes/color"
+import { SubRoute } from "./subRoute"
 import { Router } from "express";
 
-export class Routes {
-  readonly router: Router;
-  constructor(router: Router) {
-    this.router = router;
+export class Routes implements SubRoute {
+  readonly colorRoute : ColorRoute;
+
+  constructor() {
+    this.colorRoute = new ColorRoute();
   }
 
-  public registerRoutes() {
-    // I don't see any clean way to do this using OOP
-    ColorRoute.registerRoutes(this.router);
+  public registerRoutes(router: Router) {
+    this.colorRoute.registerRoutes(router);
   }
 }
