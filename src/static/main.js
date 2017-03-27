@@ -23,5 +23,6 @@ app.ports.setStorage.subscribe(function(state) {
 });
 
 window.addEventListener('storage', function(e) {
-  app.ports.handleModelChanged.send(e);
+  console.log("e: " + JSON.stringify(e));
+  app.ports.handleModelChanged.send(JSON.parse(e.newValue));
 });

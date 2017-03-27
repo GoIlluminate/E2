@@ -1,7 +1,7 @@
 port module Ports.Session exposing (..)
 
-import Json.Decode as Json
+import Types exposing (Model)
 
-port setStorage : Json.Value -> Cmd msg
+port setStorage : Model -> Cmd msg
 
-port handleModelChanged : (Json.Value -> msg) -> Sub msg
+port handleModelChanged : (Model -> msg) -> Sub msg

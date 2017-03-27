@@ -7,12 +7,11 @@ import Http
 import Html as Html
 import Json.Decode exposing (Decoder, Value)
 import Json.Decode as JD
-import Json.Encode exposing (object)
-import Json.Encode as JE
 import Ports.Window exposing (openWindow)
 import Ports.Session exposing (handleModelChanged, setStorage)
+import Types exposing (initialModel, Model)
 
-main : Program (Maybe JD.Value) Model Msg
+main : Program (Maybe Model) Model Msg
 main =
     Html.programWithFlags
         { view = view
@@ -21,16 +20,14 @@ main =
         , subscriptions = subscriptions
         }
 
-init : Maybe JD.Value -> ( Model, Cmd Msg )
-init savedModel =
+init : Maybe Model -> ( Model, Cmd Msg )
+init maybeModel =
     let
-        maybeModel = Maybe.map (JD.decodeValue decodeModel) savedModel
         default = (initialModel, Cmd.none)
     in
         case maybeModel of
             Nothing -> Debug.log "Nothing" default
-            Just (Err err) -> Debug.log err default
-            Just (Ok model) -> (model, Cmd.none)
+            Just model -> (model, Cmd.none)
 
 fetchColor : Cmd Msg
 fetchColor =
@@ -45,31 +42,7 @@ processColor result =
         Err err -> HandleColorError err
 
 subscriptions : Model -> Sub Msg
-subscriptions model = handleModelChanged (\v -> (HandleNewColor (model.color)))
-
-
--- MODEL
-
-
-type alias Model =
-    { color : String
-    }
-
-encodeModel : Model -> Json.Encode.Value
-encodeModel record =
-    Json.Encode.object
-        [ ("color",  Json.Encode.string <| record.color)
-        ]
-
-decodeModel : Json.Decode.Decoder Model
-decodeModel =
-    Json.Decode.map Model
-        (JD.field "color" Json.Decode.string)
-
-initialModel : Model
-initialModel =
-    Model "#FFFFFF"
-
+subscriptions model = handleModelChanged (\m -> HandleNewColor m.color)
 
 
 -- UPDATE
@@ -100,10 +73,9 @@ updateWithStorage msg model =
     let
         ( newModel, cmds ) =
             update msg model
-        encoded = encodeModel newModel
         commands = case msg of
                        (OpenWindow _) -> [cmds]
-                       _ -> [(setStorage encoded), cmds]
+                       _ -> [(setStorage newModel), cmds]
     in
         ( newModel
         , Cmd.batch commands
