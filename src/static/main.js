@@ -24,5 +24,6 @@ app.ports.setStorage.subscribe(function(state) {
 
 window.addEventListener('storage', function(e) {
   console.log("e: " + JSON.stringify(e));
+  if (e.key === "illuminate-session-state")
   app.ports.handleModelChanged.send(JSON.parse(e.newValue));
 });
