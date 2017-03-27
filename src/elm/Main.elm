@@ -5,18 +5,32 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Html as Html
-import Json.Decode exposing (Decoder)
+import Json.Decode exposing (Decoder, Value)
+import Json.Decode as JD
+import Json.Encode exposing (object)
+import Json.Encode as JE
+import Ports.Window exposing (openWindow)
+import Ports.Session exposing (setStorage)
 
-
-main : Program Never Model Msg
+main : Program (Maybe JD.Value) Model Msg
 main =
-    Html.program
+    Html.programWithFlags
         { view = view
-        , update = update
-        , init = ( initialModel, Cmd.none )
+        , update = updateWithStorage
+        , init = init
         , subscriptions = \_ -> Sub.none
         }
 
+init : Maybe JD.Value -> ( Model, Cmd Msg )
+init savedModel =
+    let
+        maybeModel = Maybe.map (JD.decodeValue decodeModel) savedModel
+        default = (initialModel, Cmd.none)
+    in
+        case maybeModel of
+            Nothing -> Debug.log "Nothing" default
+            Just (Err err) -> Debug.log err default
+            Just (Ok model) -> (model, Cmd.none)
 
 fetchColor : Cmd Msg
 fetchColor =
@@ -38,6 +52,16 @@ type alias Model =
     { color : String
     }
 
+encodeModel : Model -> Json.Encode.Value
+encodeModel record =
+    Json.Encode.object
+        [ ("color",  Json.Encode.string <| record.color)
+        ]
+
+decodeModel : Json.Decode.Decoder Model
+decodeModel =
+    Json.Decode.map Model
+        (JD.field "color" Json.Decode.string)
 
 initialModel : Model
 initialModel =
@@ -52,7 +76,7 @@ type Msg
     = ChangeColor
     | HandleNewColor String
     | HandleColorError Http.Error
-
+    | OpenWindow String
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -65,7 +89,22 @@ update msg model =
 
         HandleColorError error ->
             ( model, Cmd.none )
+        OpenWindow url ->
+            ( model, openWindow url )
 
+updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
+updateWithStorage msg model =
+    let
+        ( newModel, cmds ) =
+            update msg model
+        encoded = encodeModel newModel
+        commands = case msg of
+                       (OpenWindow _) -> [cmds]
+                       _ -> [(setStorage encoded), cmds]
+    in
+        ( newModel
+        , Cmd.batch commands
+        )
 
 
 -- VIEW
@@ -77,5 +116,7 @@ view model =
         [ div [ class "actions" ]
             [ button [ class "btn", onClick ChangeColor ]
                 [ span [] [ text "Elm, Gimme Colors!" ] ]
+            , button [ class "btn", onClick (OpenWindow "/") ]
+                [ span [] [ text "Open Web Page." ] ]
             ]
         ]
