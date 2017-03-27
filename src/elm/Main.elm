@@ -10,7 +10,7 @@ import Json.Decode as JD
 import Json.Encode exposing (object)
 import Json.Encode as JE
 import Ports.Window exposing (openWindow)
-import Ports.Session exposing (setStorage)
+import Ports.Session exposing (handleModelChanged, setStorage)
 
 main : Program (Maybe JD.Value) Model Msg
 main =
@@ -18,7 +18,7 @@ main =
         { view = view
         , update = updateWithStorage
         , init = init
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
 init : Maybe JD.Value -> ( Model, Cmd Msg )
@@ -43,6 +43,9 @@ processColor result =
     case result of
         Ok newColor -> HandleNewColor newColor
         Err err -> HandleColorError err
+
+subscriptions : Model -> Sub Msg
+subscriptions model = handleModelChanged (\v -> (HandleNewColor (model.color)))
 
 
 -- MODEL

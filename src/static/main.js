@@ -22,7 +22,6 @@ app.ports.setStorage.subscribe(function(state) {
   localStorage.setItem('illuminate-session-state', JSON.stringify(state));
 });
 
-// TODO: Implement this
-app.ports.registerStorageListener.subscribe(function(storageCallback) {
-  window.addEventListener('storage', storageCallback);
+window.addEventListener('storage', function(e) {
+  app.ports.handleModelChanged.send(e);
 });
